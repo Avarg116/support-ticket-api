@@ -13,3 +13,11 @@ export function requireOneOf(value: unknown, field: string, allowed: string[]): 
   }
   return value;
 }
+
+export function requireId(value: unknown, field: string): number {
+  const id = Number(value);
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new HttpError(400, `${field} must be a positive whole number`);
+  }
+  return id;
+}
