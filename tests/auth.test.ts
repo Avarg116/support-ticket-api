@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import request from "supertest";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { resetDatabase } from "../db/reset.js";
@@ -38,5 +39,25 @@ describe("POST /auth/login", () => {
 
     expect(res.status).toBe(401);
     expect(res.body).toEqual({ error: "Invalid email or password" });
+  });
+});
+
+describe("protected routes", () => {
+  it("rejects a request with no token", async () => {
+    const res = await request(app).get("/tickets");
+
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ error: "Unauthorized" });
+  });
+
+  it("rejects an expired token", async () => {
+    const token = jwt.sign({ id: 4, role: "customer" }, process.env.JWT_SECRET as string, {
+      expiresIn: -1,
+    });
+
+    const res = await request(app).get("/tickets").set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ error: "Unauthorized" });
   });
 });
