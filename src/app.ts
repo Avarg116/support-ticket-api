@@ -1,5 +1,6 @@
 import express from "express";
 import { errorHandler } from "./middleware/errorHandler.js";
+import { authRouter } from "./routes/auth.js";
 import { ticketsRouter } from "./routes/tickets.js";
 
 export function createApp() {
@@ -10,6 +11,7 @@ export function createApp() {
     res.json({ status: "ok" });
   });
 
+  app.use("/auth", authRouter);
   app.use("/tickets", ticketsRouter);
 
   app.use((_req, res) => {
