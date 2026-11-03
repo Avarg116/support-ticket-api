@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { Router } from "express";
+import jwt from "jsonwebtoken";
 import { pool } from "../lib/db.js";
 import { HttpError } from "../lib/httpError.js";
 import { requireString } from "../lib/validate.js";
@@ -27,4 +28,22 @@ authRouter.post("/register", async (req, res) => {
   );
 
   res.status(201).json(rows[0]);
+});
+
+authRouter.post("/login", async (req, res) => {
+  const email = requireString(req.body.email, "email").toLowerCase();
+  const password = requireString(req.body.password, "password");
+
+  const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+  const user = rows[0];
+
+  if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+    throw new HttpError(401, "Invalid email or password");
+  }
+
+  const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET as string, {
+    expiresIn: "1h",
+  });
+
+  res.json({ token });
 });

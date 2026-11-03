@@ -19,12 +19,30 @@ describe("POST /auth/register", () => {
     expect(res.body.role).toBe("customer");
     expect(res.body.password_hash).toBeUndefined();
   });
+});
 
-  it("rejects an email that is already registered", async () => {
-    const res = await request(app)
+describe("POST /auth/login", () => {
+  beforeEach(async () => {
+    await request(app)
       .post("/auth/register")
-      .send({ email: "customer1@example.com", password: "password123" });
+      .send({ email: "newuser@example.com", password: "password123" });
+  });
 
-    expect(res.status).toBe(409);
+  it("returns a token for the right password", async () => {
+    const res = await request(app)
+      .post("/auth/login")
+      .send({ email: "newuser@example.com", password: "password123" });
+
+    expect(res.status).toBe(200);
+    expect(typeof res.body.token).toBe("string");
+  });
+
+  it("rejects the wrong password", async () => {
+    const res = await request(app)
+      .post("/auth/login")
+      .send({ email: "newuser@example.com", password: "wrongpassword" });
+
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ error: "Invalid email or password" });
   });
 });

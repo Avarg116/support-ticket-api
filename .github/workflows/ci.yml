@@ -25,6 +25,7 @@ jobs:
 
     env:
       TEST_DATABASE_URL: postgresql://tickets:tickets@localhost:5432/tickets_test
+      JWT_SECRET: test-secret
 
     steps:
       - uses: actions/checkout@v4
