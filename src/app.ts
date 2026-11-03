@@ -1,5 +1,6 @@
 import express from "express";
 import { errorHandler } from "./middleware/errorHandler.js";
+import { requireAuth } from "./middleware/requireAuth.js";
 import { authRouter } from "./routes/auth.js";
 import { ticketsRouter } from "./routes/tickets.js";
 
@@ -12,7 +13,7 @@ export function createApp() {
   });
 
   app.use("/auth", authRouter);
-  app.use("/tickets", ticketsRouter);
+  app.use("/tickets", requireAuth, ticketsRouter);
 
   app.use((_req, res) => {
     res.status(404).json({ error: "Not found" });
