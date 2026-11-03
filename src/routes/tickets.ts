@@ -27,7 +27,7 @@ ticketsRouter.post("/", async (req, res) => {
   const subject = requireString(req.body.subject, "subject");
   const description = requireString(req.body.description, "description");
   const priority = requireOneOf(req.body.priority ?? "normal", "priority", priorities);
-  const customerId = requireId(req.body.customer_id, "customer_id");
+  const customerId = res.locals.user.id;
 
   const { rows } = await pool.query(
     `INSERT INTO tickets (subject, description, priority, customer_id)
@@ -83,7 +83,7 @@ ticketsRouter.patch("/:id", async (req, res) => {
 
 ticketsRouter.post("/:id/comments", async (req, res) => {
   const ticketId = requireId(req.params.id, "id");
-  const authorId = requireId(req.body.author_id, "author_id");
+  const authorId = res.locals.user.id;
   const text = requireString(req.body.body, "body");
 
   const ticketResult = await pool.query("SELECT id FROM tickets WHERE id = $1", [ticketId]);

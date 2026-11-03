@@ -27,19 +27,19 @@ describe("POST /tickets", () => {
         subject: "Password reset email never arrives",
         description: "I requested it three times.",
         priority: "high",
-        customer_id: 4,
       });
 
     expect(res.status).toBe(201);
     expect(res.body.subject).toBe("Password reset email never arrives");
     expect(res.body.status).toBe("open");
+    expect(res.body.customer_id).toBe(4);
   });
 
   it("rejects a missing subject", async () => {
     const res = await request(app)
       .post("/tickets")
       .set("Authorization", `Bearer ${token}`)
-      .send({ description: "No subject", customer_id: 4 });
+      .send({ description: "No subject" });
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual({ error: "subject is required" });
@@ -93,10 +93,10 @@ describe("POST /tickets/:id/comments", () => {
     const res = await request(app)
       .post("/tickets/2/comments")
       .set("Authorization", `Bearer ${token}`)
-      .send({ author_id: 2, body: "I've refunded the duplicate charge." });
+      .send({ body: "Any update on this?" });
 
     expect(res.status).toBe(201);
-    expect(res.body).toMatchObject({ ticket_id: 2, author_id: 2 });
+    expect(res.body).toMatchObject({ ticket_id: 2, author_id: 4 });
 
     const ticket = await request(app).get("/tickets/2").set("Authorization", `Bearer ${token}`);
     expect(ticket.body.comments).toHaveLength(3);
