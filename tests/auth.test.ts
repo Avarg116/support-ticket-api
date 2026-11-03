@@ -22,16 +22,10 @@ describe("POST /auth/register", () => {
 });
 
 describe("POST /auth/login", () => {
-  beforeEach(async () => {
-    await request(app)
-      .post("/auth/register")
-      .send({ email: "newuser@example.com", password: "password123" });
-  });
-
   it("returns a token for the right password", async () => {
     const res = await request(app)
       .post("/auth/login")
-      .send({ email: "newuser@example.com", password: "password123" });
+      .send({ email: "customer1@example.com", password: "password123" });
 
     expect(res.status).toBe(200);
     expect(typeof res.body.token).toBe("string");
@@ -40,7 +34,7 @@ describe("POST /auth/login", () => {
   it("rejects the wrong password", async () => {
     const res = await request(app)
       .post("/auth/login")
-      .send({ email: "newuser@example.com", password: "wrongpassword" });
+      .send({ email: "customer1@example.com", password: "wrongpassword" });
 
     expect(res.status).toBe(401);
     expect(res.body).toEqual({ error: "Invalid email or password" });

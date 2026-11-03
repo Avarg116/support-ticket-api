@@ -1,9 +1,9 @@
 INSERT INTO users (email, password_hash, role) VALUES
-  ('admin@example.com',     'not-a-real-hash', 'admin'),
-  ('agent1@example.com',    'not-a-real-hash', 'agent'),
-  ('agent2@example.com',    'not-a-real-hash', 'agent'),
-  ('customer1@example.com', 'not-a-real-hash', 'customer'),
-  ('customer2@example.com', 'not-a-real-hash', 'customer');
+  ('admin@example.com',     '$2b$10$psbiQV1n9IDrwMs/g1D6oO900pQs7rBSquVuExPH.v1xGNmin.vhW', 'admin'),
+  ('agent1@example.com',    '$2b$10$psbiQV1n9IDrwMs/g1D6oO900pQs7rBSquVuExPH.v1xGNmin.vhW', 'agent'),
+  ('agent2@example.com',    '$2b$10$psbiQV1n9IDrwMs/g1D6oO900pQs7rBSquVuExPH.v1xGNmin.vhW', 'agent'),
+  ('customer1@example.com', '$2b$10$psbiQV1n9IDrwMs/g1D6oO900pQs7rBSquVuExPH.v1xGNmin.vhW', 'customer'),
+  ('customer2@example.com', '$2b$10$psbiQV1n9IDrwMs/g1D6oO900pQs7rBSquVuExPH.v1xGNmin.vhW', 'customer');
 
 INSERT INTO tickets (subject, description, priority, status, customer_id, assignee_id) VALUES
   ('Can''t log in to my account', 'I reset my password but it still says invalid credentials.', 'urgent', 'open', 4, NULL),
