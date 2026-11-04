@@ -10,14 +10,16 @@ export const ticketsRouter = Router();
 ticketsRouter.get("/", async (req, res) => {
   const { status, priority } = req.query;
   const page = Math.max(Number(req.query.page) || 1, 1);
+  const customerId = res.locals.user.role === "customer" ? res.locals.user.id : null;
 
   const { rows } = await pool.query(
     `SELECT * FROM tickets
      WHERE ($1::text IS NULL OR status = $1)
        AND ($2::text IS NULL OR priority = $2)
+       AND ($3::int IS NULL OR customer_id = $3)
      ORDER BY id
-     LIMIT 20 OFFSET $3`,
-    [status ?? null, priority ?? null, (page - 1) * 20],
+     LIMIT 20 OFFSET $4`,
+    [status ?? null, priority ?? null, customerId, (page - 1) * 20],
   );
 
   res.json({ page, tickets: rows });
@@ -40,8 +42,12 @@ ticketsRouter.post("/", async (req, res) => {
 
 ticketsRouter.get("/:id", async (req, res) => {
   const id = requireId(req.params.id, "id");
+  const customerId = res.locals.user.role === "customer" ? res.locals.user.id : null;
 
-  const ticketResult = await pool.query("SELECT * FROM tickets WHERE id = $1", [id]);
+  const ticketResult = await pool.query(
+    "SELECT * FROM tickets WHERE id = $1 AND ($2::int IS NULL OR customer_id = $2)",
+    [id, customerId],
+  );
   const ticket = ticketResult.rows[0];
   if (!ticket) {
     throw new HttpError(404, "Ticket not found");
@@ -62,6 +68,7 @@ ticketsRouter.patch("/:id", async (req, res) => {
     req.body.description === undefined ? null : requireString(req.body.description, "description");
   const priority =
     req.body.priority === undefined ? null : requireOneOf(req.body.priority, "priority", priorities);
+  const customerId = res.locals.user.role === "customer" ? res.locals.user.id : null;
 
   const { rows } = await pool.query(
     `UPDATE tickets
@@ -69,9 +76,9 @@ ticketsRouter.patch("/:id", async (req, res) => {
          description = COALESCE($2, description),
          priority = COALESCE($3, priority),
          updated_at = now()
-     WHERE id = $4
+     WHERE id = $4 AND ($5::int IS NULL OR customer_id = $5)
      RETURNING *`,
-    [subject, description, priority, id],
+    [subject, description, priority, id, customerId],
   );
 
   if (!rows[0]) {
@@ -85,8 +92,12 @@ ticketsRouter.post("/:id/comments", async (req, res) => {
   const ticketId = requireId(req.params.id, "id");
   const authorId = res.locals.user.id;
   const text = requireString(req.body.body, "body");
+  const customerId = res.locals.user.role === "customer" ? res.locals.user.id : null;
 
-  const ticketResult = await pool.query("SELECT id FROM tickets WHERE id = $1", [ticketId]);
+  const ticketResult = await pool.query(
+    "SELECT id FROM tickets WHERE id = $1 AND ($2::int IS NULL OR customer_id = $2)",
+    [ticketId, customerId],
+  );
   if (!ticketResult.rows[0]) {
     throw new HttpError(404, "Ticket not found");
   }

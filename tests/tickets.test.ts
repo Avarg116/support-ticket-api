@@ -52,9 +52,9 @@ describe("GET /tickets", () => {
     const open = await request(app).get("/tickets?status=open").set("Authorization", `Bearer ${token}`);
     const low = await request(app).get("/tickets?priority=low").set("Authorization", `Bearer ${token}`);
 
-    expect(all.body.tickets).toHaveLength(5);
-    expect(open.body.tickets.map((t: any) => t.id)).toEqual([1, 4]);
-    expect(low.body.tickets.map((t: any) => t.id)).toEqual([3, 5]);
+    expect(all.body.tickets).toHaveLength(3);
+    expect(open.body.tickets.map((t: any) => t.id)).toEqual([1]);
+    expect(low.body.tickets.map((t: any) => t.id)).toEqual([5]);
   });
 });
 
@@ -78,13 +78,13 @@ describe("GET /tickets/:id", () => {
 describe("PATCH /tickets/:id", () => {
   it("updates only the fields sent", async () => {
     const res = await request(app)
-      .patch("/tickets/4")
+      .patch("/tickets/1")
       .set("Authorization", `Bearer ${token}`)
       .send({ priority: "high" });
 
     expect(res.status).toBe(200);
     expect(res.body.priority).toBe("high");
-    expect(res.body.subject).toBe("App crashes when uploading a photo");
+    expect(res.body.subject).toBe("Can't log in to my account");
   });
 });
 
